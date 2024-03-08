@@ -9,6 +9,11 @@ import Square from './Square.vue'
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="closeError"></button>
     </div>
 
+    <div class="alert alert-success alert-dismissible fade show" role="alert" v-if="showSuccessAlert">
+      {{successMessage}}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="closeSuccess"></button>
+    </div>
+
     <div class="row mb-5 justify-content-center">
       <div class="row g-5 align-items-center mb-2">
         <div class="col-auto">
@@ -85,9 +90,10 @@ import Square from './Square.vue'
         showModal: true,
         player1Name: "",
         player2Name: "",
-        formPlayer1Name: "",
-        formPlayer2Name: "",
+        disableForm: false,
         showAlert: false,
+        showSuccessAlert: false,
+        successMessage: "",
         errorMessage: "",
         gameID: 0,
         latestSelected: -1,
@@ -125,11 +131,6 @@ import Square from './Square.vue'
         this.squares[value]["mark"] = this.$store.state.currentPlayer
         this.squares[value]["isMarked"] = true
       },
-      submitPlayerName() {
-        this.playerName = this.formPlayerName
-        this.formPlayerName = ""
-        this.showModal = false
-      },
       startGame() {
         let base_url = "http://localhost:3000/games" 
         axios.post(base_url, {
@@ -138,6 +139,7 @@ import Square from './Square.vue'
         })
         .then((response) => {
           this.gameID = response.data.id;
+          this.disableForm = true;
         })
         .catch( (error) => {
           this.showAlert = true;
@@ -148,6 +150,10 @@ import Square from './Square.vue'
         this.showAlert = false;
         this.errorMessage = '';
       },
+      closeSuccess() {
+        this.showSuccessAlert = false;
+        this.successMessage = '';
+      },
       endTurn() {
         let base_url = "http://localhost:3000/movements" 
         axios.post(base_url, {
@@ -157,6 +163,14 @@ import Square from './Square.vue'
           player: this.$store.state.currentPlayer === "X" ? 1 : 2
         })
         .then((response) => {
+          axios.get("http://localhost:3000/movements/check_winner" , 
+          {params: {game_id: this.gameID, player: this.$store.state.currentPlayer === "X" ? 1 : 2}})
+          .then((response) => {
+            if (response.data.winner != "none") {
+              this.showSuccessAlert = true
+              this.successMessage = response.data.message
+            }
+          })
           this.changePlayer();
         })
         .catch( (error) => {
