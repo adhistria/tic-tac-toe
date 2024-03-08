@@ -4,13 +4,18 @@ import Square from './Square.vue'
 
 <template>
   <div class="container">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" v-if="showAlert">
+      {{errorMessage}}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="closeError"></button>
+    </div>
+
     <div class="row mb-5 justify-content-center">
       <div class="row g-5 align-items-center mb-2">
         <div class="col-auto">
           <label for="inputPlayer1Name" class="col-form-label">Player 1 Name:</label>
         </div>
         <div class="col-auto">
-          <input type="text" id="inputPlayer1Name" class="form-control">
+          <input type="text" id="inputPlayer1Name" class="form-control" v-model="player1Name">
         </div>
         <div class="col-auto">
 
@@ -20,17 +25,17 @@ import Square from './Square.vue'
           <label for="inputPlayer2Name" class="col-form-label">Player 2 Name:</label>
         </div>
         <div class="col-auto">
-          <input type="text" id="inputPlayer2Name" class="form-control">
+          <input type="text" id="inputPlayer2Name" class="form-control" v-model="player2Name">
         </div>
       </div>
     </div>
     <div class="row justify-content-center mb-5">
-      <div class="col-md-4">
+      <div class="col-2">
         <button @click="startGame" type="button" class="btn btn-primary">Start Game</button>
       </div>
     </div>
 
-    <div class="row">
+    <div class="row justify-content-center">
       <h3 class="text-center">Tic Tac Toe</h3>
       <div class="row justify-content-center mb-3">
         <div class="col-8">
@@ -53,18 +58,13 @@ import Square from './Square.vue'
 
       </div>
 
-      <div class="col-7 mt-2 d-grid gap-2 d-md-flex justify-content-md-end">
-
-        <button @click="endTurn" type="button" class="btn btn-primary ">Finish Turn</button>
+      <div class="row justify-content-center">
+        <div class="col-2">
+          <button @click="endTurn" type="button" class="btn btn-primary ">Finish Turn</button>
+        </div>
+        
       </div>
     </div>
-
-    <div class="row mt-2">
-      
-      
-    </div>
-
-    
   </div>
 </template>
 
@@ -78,6 +78,7 @@ import Square from './Square.vue'
 
 <script>
   import { mapState, mapMutations } from 'vuex';
+  import axios from 'axios';
   export default {
     data() {
       return {
@@ -86,6 +87,9 @@ import Square from './Square.vue'
         player2Name: "",
         formPlayer1Name: "",
         formPlayer2Name: "",
+        showAlert: false,
+        errorMessage: "",
+        gameID: 0,
         squares: [
           {isMarked: false, mark: ''},
           {isMarked: false, mark: ''},
@@ -105,6 +109,12 @@ import Square from './Square.vue'
     methods: {
       ...mapMutations(['changePlayer']),
       onSquareClick(value) {
+        console.log("here brp", this.gameID)
+        if(this.gameID === 0) {
+          this.showAlert = true;
+          this.errorMessage = "Please input player name";
+          return
+        }
         if (this.$store.state.previousMovement !== ''){
           this.squares[this.$store.state.previousMovement]["mark"] = ''
           this.squares[this.$store.state.previousMovement]["isMarked"] = false
@@ -117,6 +127,24 @@ import Square from './Square.vue'
         this.playerName = this.formPlayerName
         this.formPlayerName = ""
         this.showModal = false
+      },
+      startGame() {
+        let base_url = "http://localhost:3000/games" 
+        axios.post(base_url, {
+          player1: this.player1Name,
+          player2: this.player2Name
+        })
+        .then((response) => {
+          this.gameID = response.data.id;
+        })
+        .catch( (error) => {
+          this.showAlert = true;
+          this.errorMessage = error.response.data.join(',');
+        });
+      },
+      closeError() {
+        this.showAlert = false;
+        this.errorMessage = '';
       },
       endTurn() {
         this.changePlayer();
