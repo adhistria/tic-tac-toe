@@ -90,16 +90,17 @@ import Square from './Square.vue'
         showAlert: false,
         errorMessage: "",
         gameID: 0,
+        latestSelected: -1,
         squares: [
-          {isMarked: false, mark: ''},
-          {isMarked: false, mark: ''},
-          {isMarked: false, mark: ''},
-          {isMarked: false, mark: ''},
-          {isMarked: false, mark: ''},
-          {isMarked: false, mark: ''},
-          {isMarked: false, mark: ''},
-          {isMarked: false, mark: ''},
-          {isMarked: false, mark: ''}
+          {isMarked: false, mark: '', row: 0, column: 0},
+          {isMarked: false, mark: '', row: 0, column: 1},
+          {isMarked: false, mark: '', row: 0, column: 2},
+          {isMarked: false, mark: '', row: 1, column: 0},
+          {isMarked: false, mark: '', row: 1, column: 1},
+          {isMarked: false, mark: '', row: 1, column: 2},
+          {isMarked: false, mark: '', row: 2, column: 0},
+          {isMarked: false, mark: '', row: 2, column: 1},
+          {isMarked: false, mark: '', row: 2, column: 2}
         ]
       }
     },
@@ -119,6 +120,7 @@ import Square from './Square.vue'
           this.squares[this.$store.state.previousMovement]["mark"] = ''
           this.squares[this.$store.state.previousMovement]["isMarked"] = false
         }
+        this.latestSelected = value
         this.$store.state.previousMovement = value
         this.squares[value]["mark"] = this.$store.state.currentPlayer
         this.squares[value]["isMarked"] = true
@@ -147,8 +149,20 @@ import Square from './Square.vue'
         this.errorMessage = '';
       },
       endTurn() {
-        this.changePlayer();
-        // call API
+        let base_url = "http://localhost:3000/movements" 
+        axios.post(base_url, {
+          column: this.squares[this.latestSelected]["column"],
+          row: this.squares[this.latestSelected]["row"],
+          game_id: this.gameID,
+          player: this.$store.state.currentPlayer === "X" ? 1 : 2
+        })
+        .then((response) => {
+          this.changePlayer();
+        })
+        .catch( (error) => {
+          this.showAlert = true;
+          this.errorMessage = error.response.data.join(',');
+        });
       }
     }
   }
