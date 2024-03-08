@@ -8,15 +8,18 @@ import App from './App.vue'
 const store = createStore({
   state() {
     return {
-      currentPlayer: 'X'
+      currentPlayer: 'X',
+      previousMovement: '',
     }
   },
   mutations: {
     changePlayer (state) {
       if (state.currentPlayer == "X") {
         state.currentPlayer = "O"
+        state.previousMovement = ''
       }else{
         state.currentPlayer = "X"
+        state.previousMovement = ''
       }
     }
   }
