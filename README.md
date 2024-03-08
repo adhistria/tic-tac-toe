@@ -7,21 +7,22 @@ Requirements
 ------------
 
 - Ruby 3
-- Node.js (Version 14 or later recommended)
+- Node.js (Version 21)
 
 Installation
 ------------
 
 1. Clone the repository:
 
-   git clone https://github.com/your-username/tic-tac-toe.git
+   [git clone https://github.com/adhi/tic-tac-toe.git](https://github.com/adhistria/tic-tac-toe.git)
 
 2. Install dependencies:
 
-   cd tic-tac-toe
-   bundle install
-   cd frontend
-   npm install
+   cd tic-tac-toe  
+   bundle install  
+   rails db:migrate  
+   cd frontend  
+   npm install  
 
 Usage
 -----
@@ -41,14 +42,3 @@ Usage
    cd frontend
    npm run dev
 
-2. The frontend development server will be available at http://localhost:3001.
-
-Contributing
-------------
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
-License
--------
-
-MIT
