@@ -20,17 +20,25 @@ import Square from './Square.vue'
           <label for="inputPlayer1Name" class="col-form-label">Player 1 Name:</label>
         </div>
         <div class="col-auto">
-          <input type="text" id="inputPlayer1Name" class="form-control" v-model="player1Name">
-        </div>
-        <div class="col-auto">
-
+          <div v-if="!disableForm">
+            <input type="text" id="inputPlayer1Name" class="form-control" v-model="player1Name">
+          </div>
+          <div v-else>
+            {{ player1Name }}
+          </div>
         </div>
 
         <div class="col-auto right-align">
           <label for="inputPlayer2Name" class="col-form-label">Player 2 Name:</label>
         </div>
         <div class="col-auto">
-          <input type="text" id="inputPlayer2Name" class="form-control" v-model="player2Name">
+          <div v-if="!disableForm">
+            <input type="text" id="inputPlayer2Name" class="form-control" v-model="player2Name" v-if="!disableForm">
+          </div>
+          <div v-else>
+            {{ player2Name }}
+          </div>
+          
         </div>
       </div>
     </div>
