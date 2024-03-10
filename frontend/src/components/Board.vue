@@ -46,6 +46,9 @@ import Square from './Square.vue'
       <div class="col-2">
         <button @click="startGame" type="button" class="btn btn-primary">Start Game</button>
       </div>
+      <div class="col-2">
+        <button @click="resetGame" type="button" class="btn btn-primary">Reset Game</button>
+      </div>
     </div>
 
     <div class="row justify-content-center">
@@ -105,6 +108,7 @@ import Square from './Square.vue'
         errorMessage: "",
         gameID: 0,
         latestSelected: -1,
+        isClicked: false,
         squares: [
           {isMarked: false, mark: '', row: 0, column: 0},
           {isMarked: false, mark: '', row: 0, column: 1},
@@ -131,12 +135,14 @@ import Square from './Square.vue'
         }else if(this.gameID === -1) {
           this.showAlert = true;
           this.errorMessage = "Game is already over, Click reset button to restart the game"
+          return
         }
         if (this.$store.state.previousMovement !== ''){
           this.squares[this.$store.state.previousMovement]["mark"] = ''
           this.squares[this.$store.state.previousMovement]["isMarked"] = false
         }
         this.latestSelected = value
+        this.isClicked = true
         this.$store.state.previousMovement = value
         this.squares[value]["mark"] = this.$store.state.currentPlayer
         this.squares[value]["isMarked"] = true
@@ -165,6 +171,9 @@ import Square from './Square.vue'
         this.successMessage = '';
       },
       endTurn() {
+        if (this.gameID === -1 || this.gameID === 0 || this.latestSelected === -1 || !this.isClicked) {
+          return
+        }
         let base_url = "http://localhost:3000/movements" 
         axios.post(base_url, {
           column: this.squares[this.latestSelected]["column"],
@@ -173,6 +182,7 @@ import Square from './Square.vue'
           player: this.$store.state.currentPlayer === "X" ? 1 : 2
         })
         .then((response) => {
+          this.isClicked = false
           axios.get("http://localhost:3000/movements/check_winner" , 
           {params: {game_id: this.gameID, player: this.$store.state.currentPlayer === "X" ? 1 : 2}})
           .then((response) => {
@@ -188,6 +198,9 @@ import Square from './Square.vue'
           this.showAlert = true;
           this.errorMessage = error.response.data.join(',');
         });
+      },
+      resetGame() {
+        window.location.reload();
       }
     }
   }
