@@ -124,11 +124,13 @@ import Square from './Square.vue'
     methods: {
       ...mapMutations(['changePlayer']),
       onSquareClick(value) {
-        console.log("here brp", this.gameID)
         if(this.gameID === 0) {
           this.showAlert = true;
           this.errorMessage = "Please input player name";
           return
+        }else if(this.gameID === -1) {
+          this.showAlert = true;
+          this.errorMessage = "Game is already over, Click reset button to restart the game"
         }
         if (this.$store.state.previousMovement !== ''){
           this.squares[this.$store.state.previousMovement]["mark"] = ''
@@ -177,6 +179,7 @@ import Square from './Square.vue'
             if (response.data.winner != "none") {
               this.showSuccessAlert = true
               this.successMessage = response.data.message
+              this.gameID = -1
             }
           })
           this.changePlayer();
